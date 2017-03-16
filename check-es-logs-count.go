@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 
 	"github.com/parnurzeal/gorequest"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/alecthomas/kingpin.v1"
 	"github.com/olorin/nagiosplugin"
 )
 
@@ -166,6 +166,10 @@ func parseResult(data string) (QueryResult, error) {
 	return result, nil
 }
 
+func normalizeEsQuery(str string) string {
+	return strings.Replace(str, `"`, `\"`, -1)
+}
+
 func main() {
 	kingpin.Version(ver)
 	kingpin.Parse()
@@ -188,7 +192,7 @@ func main() {
 		*esURL,
 		*indexPattern,
 		templateSource,
-		*esQuery,
+		normalizeEsQuery(*esQuery),
 		time.Now().Unix() - int64(60) * int64(*timePeriod),
 		c,
 	)
@@ -200,9 +204,9 @@ func main() {
 		if msg.Err == nil {
 			perc := float64(msg.Count) / float64(*countThreshold) * 100
 			if (*compareOperator == "gt" && msg.Count >= *countThreshold) || (*compareOperator == "lt" && msg.Count <= *countThreshold) {
-				check.AddResult(nagiosplugin.OK, fmt.Sprintf("%d entries of * (%.2f%%) found in the past %d minutes", msg.Count, perc, *timePeriod))
+				check.AddResult(nagiosplugin.OK, fmt.Sprintf("%d entries of '%s' (%.2f%%) found in the past %d minutes", msg.Count, *esQuery, perc, *timePeriod))
 			} else if (*compareOperator == "gt" && msg.Count < *countThreshold) || (*compareOperator == "lt" && msg.Count > *countThreshold) {
-				check.AddResult(nagiosplugin.CRITICAL, fmt.Sprintf("%d entries of * (%.2f%%) found in the past %d minutes", msg.Count, perc, *timePeriod))
+				check.AddResult(nagiosplugin.CRITICAL, fmt.Sprintf("%d entries of '%s' (%.2f%%) found in the past %d minutes", msg.Count, *esQuery, perc, *timePeriod))
 			}
 		} else {
 			check.AddResult(nagiosplugin.UNKNOWN, fmt.Sprintf("%v", msg.Err))
