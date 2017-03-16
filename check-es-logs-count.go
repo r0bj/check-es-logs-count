@@ -21,7 +21,7 @@ var (
 	esURL = kingpin.Flag("url", "elasticsearch URL").Default("http://localhost:9200").Short('u').String()
 	timeout = kingpin.Flag("timeout", "timeout for HTTP requests in seconds").Default("20").Int()
 	timePeriod = kingpin.Flag("time-period", "check last X minutes until now").Default("5").Short('t').Int()
-	indexPattern = kingpin.Flag("index-pattern", "index pattern").Default("logstash-*").Short('i').String()
+	indexPattern = kingpin.Flag("index-pattern", "index pattern, eg.: logstash-mediawiki").Default("logstash-*").Short('i').String()
 	esQuery = kingpin.Flag("query", "elasticsearch query").Default("*").Short('q').String()
 	countThreshold = kingpin.Flag("threshold", "threshold for logs count").Short('T').Required().Int()
 	compareOperator = kingpin.Flag("compare-operator", "operator to compare returned value with threshold, 'lt' or 'gt'").Short('o').Default("gt").String()
